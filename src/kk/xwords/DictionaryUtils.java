@@ -9,9 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class DictionaryUtils {
     static class DictionaryBuilder {
@@ -116,13 +115,20 @@ public class DictionaryUtils {
         return dict;
     }
 
-    public static Dictionary loadWords(String path, Alphabet alphabet) throws IOException {
-        DictionaryBuilder dictionaryBuilder = new DictionaryBuilder(alphabet);
+    public static Dictionary loadWordsAndCompress(String path, Alphabet alphabet) throws IOException {
+        DictionaryBuilder db = new DictionaryBuilder(alphabet);
+        DictionaryCompressor dc = new DictionaryCompressor();
 
-        try (Stream<String> lines = Files.lines(Paths.get(path))) {
-            lines.forEach(dictionaryBuilder::addWord);
-        }
-        return dictionaryBuilder.getDictionary();
+        Set<Map.Entry<Character, List<String>>> wordLists = Files.lines(Paths.get(path)).sorted().collect(Collectors.groupingBy(str -> str.charAt(0))).entrySet();
+        
+        wordLists.stream().parallel().forEach(wordList -> {
+            System.out.println("'" + wordList.getKey() + "': thread: " + Thread.currentThread().getName());
+            wordList.getValue().forEach(db::addWord);
+            dc.compress(db.dict.root.next(wordList.getKey()), alphabet, true, false);
+        });
+        
+        dc.compress(db.dict.root, alphabet, false, true);
+        return db.getDictionary();
     }
 
     public static Dictionary linesWordsFromURL(String urlAddress, Alphabet alphabet) throws IOException {

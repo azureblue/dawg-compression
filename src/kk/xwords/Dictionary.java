@@ -1,9 +1,6 @@
 package kk.xwords;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.function.Consumer;
 
@@ -80,10 +77,10 @@ public class Dictionary {
 //        Dictionary dict = DictionaryUtils.linesWordsFromURL("https://raw.githubusercontent.com/" +
 //                        "first20hours/google-10000-english/master/google-10000-english-usa.txt",
 //                new Alphabet("abcdefghijklmnopqrstuvwxyz".toCharArray()));
-        Dictionary dict = DictionaryUtils.loadWords("/home/konrad/sjp-20140803/words", new Alphabet("aąbcćdeęfghijklłmnńoópqrsśtuvwyzźż".toCharArray()));
+        Dictionary dict = DictionaryUtils.loadWordsAndCompress("K:\\slowa.txt", new Alphabet("aąbcćdeęfghijklłmnńoópqrsśtuvwyzźż".toCharArray()));
 //        Dictionary dict = Dictionary.loadFromAutomaton(Files.lines(Paths.get("/media/docs_ram/out.txt")).iterator());
         //new DictionaryCompressor().compress(dict);
-        //DictionaryUtils.writeDictionaryAutomatonToFile(dict, Paths.get("/media/docs_ram/out.txt"));
+        DictionaryUtils.writeDictionaryAutomatonToFile(dict, Paths.get("K:\\out4.txt"));
     }
 
 
