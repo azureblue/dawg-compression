@@ -6,7 +6,6 @@ public class Alphabet {
     private final char[] alphabetChars;
     private final short[] lookUp = new short[Character.MAX_VALUE];
 
-
     public Alphabet(char[] alphabetChars) {
         for (char ch : alphabetChars)
             if (!Character.isLetterOrDigit(ch))
