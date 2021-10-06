@@ -30,7 +30,7 @@ public class DictionaryUtils {
             char[] chars = word.toCharArray();
             for (char ch : chars)
                 if (!alpha.contains(ch)) {
-                    System.err.println("omitting word: " + word);
+//                    System.err.println("omitting word: " + word);
                     return;
                 }
 //                    throw new IllegalArgumentException("word '" + word + "' contains letter(s) that are not in the alphabet");
@@ -70,9 +70,8 @@ public class DictionaryUtils {
 
         Queue<Node<?>> queue = new ArrayDeque<>();
         HashSet<Node<?>> visited = new HashSet<>();
-
         queue.add(root);
-        visited.clear();
+
         while (!queue.isEmpty()) {
             Node<?> node = queue.remove();
             if (visited.contains(node))
@@ -97,13 +96,13 @@ public class DictionaryUtils {
     public static Node<?> loadFromAutomaton(Iterator<String> lines) {
         Alphabet alphabet = new Alphabet(lines.next().toCharArray());
         int numberOfNodes = Integer.parseInt(lines.next());
-        HashMap<Integer, ArrayBasedNode> states = new HashMap<>(numberOfNodes);
+        HashMap<Integer, ArrayNode> states = new HashMap<>(numberOfNodes);
         ArrayNode root = new ArrayNode(alphabet);
         states.put(0, root);
         IntStream.range(1, numberOfNodes).forEach(i -> states.put(i, new ArrayNode(alphabet)));
         lines.forEachRemaining(line -> {
             StringTokenizer tokens = new StringTokenizer(line);
-            ArrayBasedNode state = states.get(Integer.parseInt(tokens.nextToken()));
+            ArrayNode state = states.get(Integer.parseInt(tokens.nextToken()));
             state.setFinal(Integer.parseInt(tokens.nextToken()) == 1);
             while (tokens.hasMoreTokens()) {
                 char edge = tokens.nextToken().charAt(0);
@@ -115,9 +114,9 @@ public class DictionaryUtils {
     }
 
     public static Node<?> loadWordsAndCompress(String path, Alphabet alphabet) throws IOException {
+        long start = System.currentTimeMillis();
         NodePathBuilder<CompressorNode> db = new NodePathBuilder<>(alphabet,
-                (node, ch)
-                -> node.setSubnode(alphabet.index(ch), new CompressorNode(alphabet)),
+                (node, ch) -> node.setSubnode(alphabet.index(ch), new CompressorNode(alphabet)),
                 node -> node.setFinal(true));
 
         DictionaryCompressor dc = new DictionaryCompressor();
@@ -127,23 +126,13 @@ public class DictionaryUtils {
 
         CompressorNode root = new CompressorNode(alphabet);
         wordLists.stream().parallel().forEach(wordList -> {
-            System.out.println("'" + wordList.getKey() + "': thread: " + Thread.currentThread().getName());
+//            System.out.println("'" + wordList.getKey() + "': thread: " + Thread.currentThread().getName());
             wordList.getValue().forEach(word -> db.addWord(root, word));
-            dc.compress(root.next(wordList.getKey()), true, false);
+            dc.compress(root.next(wordList.getKey()), false);
         });
 
-        dc.compress(root, false, true);
-        HashMap a;
-        TreeMap<Integer, String> as;
+        dc.compress(root, true);
+        System.out.println(System.currentTimeMillis() - start);
         return root;
     }
-
-//    public static Dictionary linesWordsFromURL(String urlAddress, Alphabet alphabet) throws IOException {
-//        NodePathBuilder dictionaryBuilder = new NodePathBuilder(alphabet);
-//        URL url = new URL(urlAddress);
-//        try (BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()))) {
-//            br.lines().forEach(dictionaryBuilder::addWord);
-//        }
-//        return dictionaryBuilder.getDictionary();
-//    }
 }

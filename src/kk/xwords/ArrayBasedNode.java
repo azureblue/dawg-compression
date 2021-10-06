@@ -22,8 +22,6 @@ public abstract class ArrayBasedNode<T extends ArrayBasedNode<T>> implements Nod
         this.alphabet = alphabet;
         int alphaLen = alphabet.length();
         this.subnodes = new Object[alphaLen];
-//        for (int i = 0; i < alphaLen; i++)
-//            this.subnodes.add(null);
     }
 
     @Override
@@ -46,7 +44,7 @@ public abstract class ArrayBasedNode<T extends ArrayBasedNode<T>> implements Nod
 
     @Override
     public Iterator<T> iterator() {
-        return new Iterator<T>() {
+        return new Iterator<>() {
             int idx = 0;
             int visitedEdges = 0;
 

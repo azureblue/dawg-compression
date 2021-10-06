@@ -1,60 +1,34 @@
 package kk.xwords;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 
 public class DictionaryCompressor {
-        
-    static class PartitioningTraverser {
 
-        HashMap<Integer, ArrayList<CompressorNode>> partitionMap;
+    private int partition(CompressorNode node, HashMap<Integer, ArrayList<CompressorNode>> res) {
+        int maxSubHeight = 0;
 
-        private int partition(CompressorNode node) {
-            int maxSubHeight = 0;
-
-            for (CompressorNode subNode : node) {
-                if (subNode == null)
-                    continue;
-                maxSubHeight = Math.max(maxSubHeight, partition(subNode));
-            }
-            partitionMap.putIfAbsent(maxSubHeight, new ArrayList<>());
-            partitionMap.get(maxSubHeight).add(node);
-            return maxSubHeight + 1;
+        for (CompressorNode subnode : node) {
+            if (subnode == null)
+                continue;
+            maxSubHeight = Math.max(maxSubHeight, partition(subnode, res));
         }
 
-        PartitioningTraverser(HashMap<Integer, ArrayList<CompressorNode>> partitionMap) {
-            this.partitionMap = partitionMap;
-        }
-
-        private static HashMap<Integer, ArrayList<CompressorNode>> startPartition(CompressorNode node) {
-            final HashMap<Integer, ArrayList<CompressorNode>> res = new HashMap<>();
-            new PartitioningTraverser(res).partition(node);
-            return res;
-        }
+        ArrayList<CompressorNode> nodes = res.get(maxSubHeight);
+        if (nodes == null)
+            res.put(maxSubHeight, new ArrayList<>(List.of(node)));
+        else
+            nodes.add(node);
+        return maxSubHeight + 1;
     }
 
-    private static HashMap<Integer, ArrayList<CompressorNode>> partition(CompressorNode node) {
-//        HashMap<Integer, ArrayList<Dictionary.Node>> partitionMap = Arrays.stream(node.subNodes)
-//                .filter(Objects::nonNull)
-//                .parallel()
-//                .map(PartitioningTraverser::startPartition)
-//                .reduce((acc, el) -> {
-//                    el.entrySet().forEach(entry -> acc.merge(entry.getKey(), entry.getValue(),
-//                            (accArray, elArray) -> {
-//                                accArray.addAll(elArray);
-//                                return accArray;
-//                            }));
-//                    return acc;
-//                }).get();
-//        partitionMap.put(Collections.max(partitionMap.keySet()) + 1, 
-//                new ArrayList(Collections.singletonList(node)));
-        return PartitioningTraverser.startPartition(node);
+    private HashMap<Integer, ArrayList<CompressorNode>> partition(CompressorNode node) {
+        HashMap<Integer, ArrayList<CompressorNode>> partitionMap = new HashMap<>();
+        partition(node, partitionMap);
+        return partitionMap;
     }
 
-    void compress(CompressorNode root, boolean isTree, boolean parallel) {
+    void compress(CompressorNode root, boolean parallel) {
         HashMap<Integer, ArrayList<CompressorNode>> partition = partition(root);
 
         int maxHeight = Collections.max(partition.keySet());
@@ -77,7 +51,7 @@ public class DictionaryCompressor {
                 for (int i = 0; i < nodesArray.length; i++)
                     nodes.set(i, nodesArray[i]);
             } else
-                nodes.sort((a, b) -> a.compareTo(b));
+                nodes.sort(CompressorNode::compareTo);
             CompressorNode first = nodes.get(0);
             for (int i = 1; i < nodes.size(); i++) {
                 CompressorNode node = nodes.get(i);

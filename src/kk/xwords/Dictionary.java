@@ -14,10 +14,11 @@ public class Dictionary {
 //        Dictionary dict = DictionaryUtils.linesWordsFromURL("https://raw.githubusercontent.com/" +
 //                        "first20hours/google-10000-english/master/google-10000-english-usa.txt",
 //                new Alphabet("abcdefghijklmnopqrstuvwxyz".toCharArray()));
-        Node<?> root = DictionaryUtils.loadWordsAndCompress("K:\\slowa.txt", alphabet);
+        Node<?> root = DictionaryUtils.loadWordsAndCompress("/media/ram/sjp-20210731/slowa.txt",
+                alphabet);
 //        Dictionary dict = Dictionary.loadFromAutomaton(Files.lines(Paths.get("/media/docs_ram/out.txt")).iterator());
-        //new DictionaryCompressor().compress(dict);
-        DictionaryUtils.writeDictionaryAutomatonToFile(root, alphabet, Paths.get("K:\\out4.txt"));
+//        new DictionaryCompressor().compress(dict);
+//        DictionaryUtils.writeDictionaryAutomatonToFile(root,  alphabet, Paths.get("/media/ram/out.txt"));
     }
 
 
